@@ -1,7 +1,8 @@
+import { Routine } from "@/store/local-storage";
 import { eachDayOfInterval, isEqual, startOfToday } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
 
-interface SleepRecord {
+interface SleepRecord extends Routine {
   id: number;
   date: Date;
   sleepOnTime: boolean;
@@ -24,7 +25,7 @@ db.version(1).stores({
 
 // --
 
-export const initDb = async () => {
+export const initDb = async (routine: Routine) => {
   const today = startOfToday();
   const lastItem = await db.sleeps.orderBy("date").last(); // undefied, today, day before today
 
@@ -41,6 +42,7 @@ export const initDb = async () => {
     await db.sleeps.bulkAdd(
       days.map((day) => ({
         date: day,
+        ...routine,
         sleepOnTime: false,
         wakeOnTime: false,
       })),
@@ -48,6 +50,7 @@ export const initDb = async () => {
   } else {
     await db.sleeps.add({
       date: startOfToday(),
+      ...routine,
       sleepOnTime: false,
       wakeOnTime: false,
     });

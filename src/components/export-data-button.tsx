@@ -27,8 +27,8 @@ export default function ExportDataButton() {
 const generateContentFromData = (data: SleepRecord[]) => {
   return data
     .map(
-      ({ date, sleepOnTime, wakeOnTime }) =>
-        `${format(date, "yyyy-MM-dd")} 07:30~23:00 ${wakeOnTime ? "1" : "0"} ${sleepOnTime ? "1" : "0"}`,
+      ({ date, sleepTime, wakeTime, sleepOnTime, wakeOnTime }) =>
+        `${format(date, "yyyy-MM-dd")} ${wakeTime}~${sleepTime} ${wakeOnTime ? "1" : "0"} ${sleepOnTime ? "1" : "0"}`,
     )
     .join("\n");
 };

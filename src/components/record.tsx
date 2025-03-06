@@ -4,11 +4,6 @@ import { getSelectedDay } from "@/store";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Moon, Sun } from "lucide-react";
 
-const sleepTime = {
-  sleep: "11:30",
-  wake: "7:30",
-};
-
 export default function Record() {
   const selected = getSelectedDay();
   const record = useLiveQuery(() => getSleepRecord(selected), [selected]);
@@ -17,8 +12,8 @@ export default function Record() {
 
   return (
     <div className="space-y-3">
-      <TimeRecord type="wake" time={sleepTime.wake} record={record} />
-      <TimeRecord type="sleep" time={sleepTime.sleep} record={record} />
+      <TimeRecord type="wake" record={record} />
+      <TimeRecord type="sleep" record={record} />
     </div>
   );
 }
@@ -26,12 +21,11 @@ export default function Record() {
 // -- TimeRecord --
 
 type TimeRecordProps = {
-  time: string;
   type: "wake" | "sleep";
   record: SleepRecord;
 };
 
-function TimeRecord({ time, type, record }: TimeRecordProps) {
+function TimeRecord({ type, record }: TimeRecordProps) {
   const handleChecked = async (checked: boolean) => {
     await db.sleeps.update(
       record.id,
@@ -45,7 +39,8 @@ function TimeRecord({ time, type, record }: TimeRecordProps) {
       className="bg-card flex items-center justify-between rounded p-4"
     >
       <div className="flex items-center gap-2">
-        {type === "wake" ? <Sun /> : <Moon />} {time}
+        {type === "wake" ? <Sun /> : <Moon />}
+        <span>{type === "wake" ? record.wakeTime : record.sleepTime}</span>
       </div>
       <Checkbox
         id={`${type}-record`}
