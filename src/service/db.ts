@@ -58,3 +58,8 @@ export const getSleepRecord = async (date: Date) => {
   const item = await db.sleeps.where({ date }).first();
   return item;
 };
+
+export const getAllSleepRecords = async () => {
+  const data = await db.sleeps.toArray();
+  return data;
+};
