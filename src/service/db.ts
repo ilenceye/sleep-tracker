@@ -1,5 +1,5 @@
 import { Routine } from "@/store/local-storage";
-import { eachDayOfInterval, isEqual, startOfToday } from "date-fns";
+import { eachDayOfInterval, isEqual, startOfDay, startOfToday } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
 
 interface SleepRecord extends Routine {
@@ -41,7 +41,7 @@ export const initDb = async (routine: Routine) => {
 
     await db.sleeps.bulkAdd(
       days.map((day) => ({
-        date: day,
+        date: startOfDay(day),
         ...routine,
         sleepOnTime: false,
         wakeOnTime: false,
@@ -65,4 +65,17 @@ export const getSleepRecord = async (date: Date) => {
 export const getAllSleepRecords = async () => {
   const data = await db.sleeps.toArray();
   return data;
+};
+
+export const insertSleepRecords = async (data: Omit<SleepRecord, "id">[]) => {
+  // if not exist, insert
+  // if exist, update
+
+  // for (const item of data) {
+  //   await db.sleeps.where("date").equals(item.date).delete();
+  // }
+
+  await db.sleeps.clear();
+
+  await db.sleeps.bulkAdd(data);
 };
