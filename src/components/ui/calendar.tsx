@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import { cn } from "@/lib/classnames";
+import { createSafeContext } from "@/lib/react";
 import {
   eachDayOfInterval,
   endOfMonth,
@@ -11,25 +14,38 @@ import {
   startOfToday,
 } from "date-fns";
 
-type CalendarProps = {
+interface CalendarProps {
   selected: Date;
   range?: [Date, Date];
   onSelect: (selected: Date) => void;
-};
+}
+
+interface CalendarContext extends CalendarProps {
+  today: Date;
+  currentMonth: string;
+  setToday: React.Dispatch<React.SetStateAction<Date>>;
+}
+
+const [CalendarProvider, useCalendarContext] =
+  createSafeContext<CalendarContext>("CalendarProvider was not found in tree.");
 
 export default function Calendar(props: CalendarProps) {
+  const [today, setToday] = useState(startOfToday());
+  const currentMonth = format(today, "yyyy-MM");
+
+  const value = { ...props, today, currentMonth, setToday };
+
   return (
-    <>
+    <CalendarProvider value={value}>
       <CurrentMonth />
       <WeekSection />
-      <DaySection {...props} />
-    </>
+      <DaySection />
+    </CalendarProvider>
   );
 }
 
 function CurrentMonth() {
-  const today = startOfToday();
-  const currentMonth = format(today, "yyyy-MM");
+  const { currentMonth } = useCalendarContext();
 
   return <div className="p-2 font-semibold text-gray-900">{currentMonth}</div>;
 }
@@ -48,11 +64,10 @@ function WeekSection() {
 
 // --
 
-type DaySectionProps = Pick<CalendarProps, "selected" | "onSelect" | "range">;
+function DaySection() {
+  const { selected, onSelect, range, today, currentMonth, setToday } =
+    useCalendarContext();
 
-function DaySection({ selected, onSelect, range }: DaySectionProps) {
-  const today = startOfToday();
-  const currentMonth = format(today, "yyyy-MM");
   const firstDayOfCurrentMonth = parse(currentMonth, "yyyy-MM", new Date());
 
   const days = eachDayOfInterval({
