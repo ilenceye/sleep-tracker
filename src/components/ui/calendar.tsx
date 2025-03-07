@@ -6,12 +6,14 @@ import {
   getDay,
   isEqual,
   isToday,
+  isWithinInterval,
   parse,
   startOfToday,
 } from "date-fns";
 
 type CalendarProps = {
   selected: Date;
+  range?: [Date, Date];
   onSelect: (selected: Date) => void;
 };
 
@@ -46,9 +48,9 @@ function WeekSection() {
 
 // --
 
-type DaySectionProps = Pick<CalendarProps, "selected" | "onSelect">;
+type DaySectionProps = Pick<CalendarProps, "selected" | "onSelect" | "range">;
 
-function DaySection({ selected, onSelect }: DaySectionProps) {
+function DaySection({ selected, onSelect, range }: DaySectionProps) {
   const today = startOfToday();
   const currentMonth = format(today, "yyyy-MM");
   const firstDayOfCurrentMonth = parse(currentMonth, "yyyy-MM", new Date());
@@ -58,13 +60,23 @@ function DaySection({ selected, onSelect }: DaySectionProps) {
     end: endOfMonth(firstDayOfCurrentMonth),
   });
 
+  const isWithinRange = (day: Date) =>
+    range
+      ? isWithinInterval(day, {
+          start: range[0],
+          end: range[1],
+        })
+      : true;
+
   const getDayButtonClasses = (day: Date) => {
     const isToday_ = isToday(day);
     const isSelectedDay = isEqual(day, selected);
+    const isDisabled = !isWithinRange(day);
 
     return cn("size-8 flex items-center justify-center mx-auto rounded-full", {
-      "text-white bg-gray-900": isSelectedDay,
-      "hover:bg-gray-200": !isSelectedDay,
+      "text-white bg-gray-900": isSelectedDay && !isDisabled,
+      "opacity-50": isDisabled,
+      "hover:bg-gray-200": !isSelectedDay && !isDisabled,
       "border border-gray-200": isToday_ && !isSelectedDay,
       "font-semibold": isToday_ || isSelectedDay,
     });
@@ -81,6 +93,7 @@ function DaySection({ selected, onSelect }: DaySectionProps) {
             type="button"
             className={getDayButtonClasses(day)}
             onClick={() => !isEqual(day, selected) && onSelect(day)}
+            disabled={!isWithinRange(day)}
           >
             <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
           </button>

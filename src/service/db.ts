@@ -79,3 +79,9 @@ export const insertSleepRecords = async (data: Omit<SleepRecord, "id">[]) => {
 
   await db.sleeps.bulkAdd(data);
 };
+
+export const getTrackedDateRange = async (): Promise<[Date, Date]> => {
+  const first = await db.sleeps.orderBy("id").first();
+  const last = await db.sleeps.orderBy("id").last();
+  return [first?.date || startOfToday(), last?.date || startOfToday()];
+};

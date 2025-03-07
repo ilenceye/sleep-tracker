@@ -1,7 +1,9 @@
 import Record from "@/components/record";
 import Calendar from "@/components/ui/calendar";
+import { getTrackedDateRange } from "@/service/db";
 import { getSelectedDay, setSelectedDay } from "@/store";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Settings } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -10,11 +12,16 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   const selected = getSelectedDay();
+  const calendarRange = useLiveQuery(getTrackedDateRange);
 
   return (
     <div className="bg-secondary h-screen p-2">
       <div className="relative">
-        <Calendar selected={selected} onSelect={setSelectedDay} />
+        <Calendar
+          selected={selected}
+          onSelect={setSelectedDay}
+          range={calendarRange}
+        />
         <div className="absolute top-2 right-2">
           <Link to="/settings">
             <Settings size={20} />
