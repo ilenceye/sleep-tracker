@@ -1,8 +1,10 @@
 import { useState } from "react";
 
+import { useSwipe } from "@/hooks/use-swipe";
 import { cn } from "@/lib/classnames";
 import { createSafeContext } from "@/lib/react";
 import {
+  addMonths,
   eachDayOfInterval,
   endOfMonth,
   format,
@@ -12,12 +14,15 @@ import {
   isWithinInterval,
   parse,
   startOfToday,
+  subMonths,
 } from "date-fns";
 
 interface CalendarProps {
   selected: Date;
   range?: [Date, Date];
   onSelect: (selected: Date) => void;
+  onPreviousMonth?: (hanlder: () => void, options: { today: Date }) => void;
+  onNextMonth?: (hanlder: () => void, options: { today: Date }) => void;
 }
 
 interface CalendarContext extends CalendarProps {
@@ -65,8 +70,16 @@ function WeekSection() {
 // --
 
 function DaySection() {
-  const { selected, onSelect, range, today, currentMonth, setToday } =
-    useCalendarContext();
+  const {
+    selected,
+    onSelect,
+    range,
+    today,
+    currentMonth,
+    setToday,
+    onPreviousMonth,
+    onNextMonth,
+  } = useCalendarContext();
 
   const firstDayOfCurrentMonth = parse(currentMonth, "yyyy-MM", new Date());
 
@@ -97,8 +110,37 @@ function DaySection() {
     });
   };
 
+  // == handle swipe
+
+  const swipe = useSwipe({
+    onSwipeLeft: () => {
+      const handler = () => {
+        const previousMonthToday = subMonths(today, 1);
+        const previousMonthSelectedDay = subMonths(selected, 1);
+        setToday(previousMonthToday);
+        onSelect(previousMonthSelectedDay);
+      };
+
+      onPreviousMonth ? onPreviousMonth(handler, { today }) : handler();
+    },
+    onSwipeRight: () => {
+      const handler = () => {
+        const nextMonthToday = addMonths(today, 1);
+        const nextMonthSelectedDay = addMonths(selected, 1);
+        setToday(nextMonthToday);
+        onSelect(nextMonthSelectedDay);
+      };
+
+      onNextMonth ? onNextMonth(handler, { today }) : handler();
+    },
+  });
+
   return (
-    <div className="grid grid-cols-7 text-sm">
+    <div
+      className="grid grid-cols-7 text-sm"
+      style={{ touchAction: "none" }}
+      {...swipe()}
+    >
       {days.map((day, dayIdx) => (
         <div
           key={day.toString()}

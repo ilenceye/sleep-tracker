@@ -1,5 +1,14 @@
 import { Routine } from "@/store/local-storage";
-import { eachDayOfInterval, isEqual, startOfDay, startOfToday } from "date-fns";
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  isEqual,
+  startOfDay,
+  startOfMonth,
+  startOfToday,
+  subMonths,
+} from "date-fns";
 import Dexie, { EntityTable } from "dexie";
 
 interface SleepRecord extends Routine {
@@ -84,4 +93,22 @@ export const getTrackedDateRange = async (): Promise<[Date, Date]> => {
   const first = await db.sleeps.orderBy("id").first();
   const last = await db.sleeps.orderBy("id").last();
   return [first?.date || startOfToday(), last?.date || startOfToday()];
+};
+
+export const isPrevMonthHasSleepRecord = async (today: Date) => {
+  // get final day of last month
+  // check if there is an item has same day of above
+  const lastDayOfLastMonth = startOfDay(endOfMonth(subMonths(today, 1)));
+  const record = await db.sleeps
+    .filter((enrty) => isEqual(enrty.date, lastDayOfLastMonth))
+    .first();
+  return !!record;
+};
+
+export const isNextMonthHasSleepRecord = async (today: Date) => {
+  const firstDayOfNextMonth = startOfDay(startOfMonth(addMonths(today, 1)));
+  const record = await db.sleeps
+    .filter((entry) => isEqual(entry.date, firstDayOfNextMonth))
+    .first();
+  return !!record;
 };

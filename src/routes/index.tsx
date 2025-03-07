@@ -1,6 +1,10 @@
 import Record from "@/components/record";
 import Calendar from "@/components/ui/calendar";
-import { getTrackedDateRange } from "@/service/db";
+import {
+  getTrackedDateRange,
+  isNextMonthHasSleepRecord,
+  isPrevMonthHasSleepRecord,
+} from "@/service/db";
 import { getSelectedDay, setSelectedDay } from "@/store";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -21,6 +25,14 @@ function RouteComponent() {
           selected={selected}
           onSelect={setSelectedDay}
           range={calendarRange}
+          onPreviousMonth={async (hanlder, { today }) => {
+            const has = await isPrevMonthHasSleepRecord(today);
+            has && hanlder();
+          }}
+          onNextMonth={async (handler, { today }) => {
+            const has = await isNextMonthHasSleepRecord(today);
+            has && handler();
+          }}
         />
         <div className="absolute top-2 right-2">
           <Link to="/settings">
