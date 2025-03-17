@@ -17,9 +17,12 @@ import {
   subMonths,
 } from "date-fns";
 
+type WeekStartOn = 0 | 1; // 0 => sunday, 1 => monday
+
 interface CalendarProps {
   selected: Date;
   range?: [Date, Date];
+  weekStartsOn?: WeekStartOn;
   onSelect: (selected: Date) => void;
   onPreviousMonth?: (hanlder: () => void, options: { today: Date }) => void;
   onNextMonth?: (hanlder: () => void, options: { today: Date }) => void;
@@ -29,6 +32,7 @@ interface CalendarContext extends CalendarProps {
   today: Date;
   currentMonth: string;
   setToday: React.Dispatch<React.SetStateAction<Date>>;
+  weekStartsOn: WeekStartOn;
 }
 
 const [CalendarProvider, useCalendarContext] =
@@ -38,7 +42,8 @@ export default function Calendar(props: CalendarProps) {
   const [today, setToday] = useState(startOfToday());
   const currentMonth = format(today, "yyyy-MM");
 
-  const value = { ...props, today, currentMonth, setToday };
+  const { weekStartsOn = 0, ...rest } = props;
+  const value = { weekStartsOn, ...rest, today, currentMonth, setToday };
 
   return (
     <CalendarProvider value={value}>
@@ -56,7 +61,11 @@ function CurrentMonth() {
 }
 
 function WeekSection() {
-  const weeks = ["日", "一", "二", "三", "四", "五", "六"];
+  const { weekStartsOn } = useCalendarContext();
+  const weeks =
+    weekStartsOn === 0
+      ? ["日", "一", "二", "三", "四", "五", "六"]
+      : ["一", "二", "三", "四", "五", "六", "日"];
 
   return (
     <div className="grid grid-cols-7 text-center text-xs leading-6 text-gray-500">
@@ -76,6 +85,7 @@ function DaySection() {
     range,
     today,
     currentMonth,
+    weekStartsOn,
     setToday,
     onPreviousMonth,
     onNextMonth,
@@ -144,7 +154,9 @@ function DaySection() {
       {days.map((day, dayIdx) => (
         <div
           key={day.toString()}
-          className={cn(dayIdx === 0 && colStartClasses[getDay(day)])}
+          className={cn(
+            dayIdx === 0 && getColStartClasses(weekStartsOn)[getDay(day)],
+          )}
         >
           <button
             type="button"
@@ -160,12 +172,24 @@ function DaySection() {
   );
 }
 
-const colStartClasses = [
-  "",
-  "col-start-2",
-  "col-start-3",
-  "col-start-4",
-  "col-start-5",
-  "col-start-6",
-  "col-start-7",
-];
+const getColStartClasses = (weekStartsOn: WeekStartOn) =>
+  [
+    [
+      "",
+      "col-start-2",
+      "col-start-3",
+      "col-start-4",
+      "col-start-5",
+      "col-start-6",
+      "col-start-7",
+    ],
+    [
+      "col-start-7",
+      "",
+      "col-start-2",
+      "col-start-3",
+      "col-start-4",
+      "col-start-5",
+      "col-start-6",
+    ],
+  ][weekStartsOn];
