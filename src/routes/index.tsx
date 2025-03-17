@@ -6,6 +6,7 @@ import {
   isPrevMonthHasSleepRecord,
 } from "@/service/db";
 import { getSelectedDay, setSelectedDay } from "@/store";
+import { useLocalStorageStore } from "@/store/local-storage";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Settings } from "lucide-react";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   const selected = getSelectedDay();
   const calendarRange = useLiveQuery(getTrackedDateRange);
+  const weekStartsOn = useLocalStorageStore((state) => state.weekStartsOn);
 
   return (
     <div className="bg-secondary h-screen p-2">
@@ -25,6 +27,7 @@ function RouteComponent() {
           selected={selected}
           onSelect={setSelectedDay}
           range={calendarRange}
+          weekStartsOn={weekStartsOn}
           onPreviousMonth={async (hanlder, { today }) => {
             const has = await isPrevMonthHasSleepRecord(today);
             has && hanlder();

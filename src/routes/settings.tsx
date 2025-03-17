@@ -1,5 +1,6 @@
 import ExportDataButton from "@/components/export-data-button";
 import ImportDataButton from "@/components/import-data-button";
+import WeekStartsOnSelect from "@/components/week-starts-on-select";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
@@ -12,11 +13,14 @@ function RouteComponent() {
     <div className="bg-secondary h-screen p-2">
       <div className="space-y-6">
         <SettingsHeader />
+        <GeneralSettingsSection />
         <DataSettingsSection />
       </div>
     </div>
   );
 }
+
+// ==
 
 function SettingsHeader() {
   return (
@@ -30,6 +34,23 @@ function SettingsHeader() {
     </div>
   );
 }
+
+// ==
+
+function GeneralSettingsSection() {
+  return (
+    <div>
+      <div className="text-sm font-bold">
+        <h3>常规设置</h3>
+      </div>
+      <div className="-mx-2 py-2">
+        <WeekStartsOnSelect />
+      </div>
+    </div>
+  );
+}
+
+// ==
 
 function DataSettingsSection() {
   return (

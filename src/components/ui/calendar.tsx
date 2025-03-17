@@ -17,7 +17,7 @@ import {
   subMonths,
 } from "date-fns";
 
-type WeekStartOn = 0 | 1; // 0 => sunday, 1 => monday
+export type WeekStartOn = 0 | 1; // 0 => sunday, 1 => monday
 
 interface CalendarProps {
   selected: Date;
