@@ -1,3 +1,4 @@
+import MainDropdown from "@/components/main-dropdown";
 import Record from "@/components/record";
 import Calendar from "@/components/ui/calendar";
 import {
@@ -7,9 +8,8 @@ import {
 } from "@/service/db";
 import { getSelectedDay, setSelectedDay } from "@/store";
 import { useLocalStorageStore } from "@/store/local-storage";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Settings } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -37,10 +37,8 @@ function RouteComponent() {
             has && handler();
           }}
         />
-        <div className="absolute top-2 right-2">
-          <Link to="/settings">
-            <Settings size={20} />
-          </Link>
+        <div className="absolute top-2 right-2 flex items-center">
+          <MainDropdown />
         </div>
       </div>
       <div className="mt-6">
