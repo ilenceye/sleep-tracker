@@ -1,12 +1,17 @@
 import { Routine } from "@/store/local-storage";
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
+  endOfWeek,
+  isAfter,
+  isBefore,
   isEqual,
   startOfDay,
   startOfMonth,
   startOfToday,
+  subDays,
   subMonths,
 } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
@@ -111,4 +116,31 @@ export const isNextMonthHasSleepRecord = async (today: Date) => {
     .filter((entry) => isEqual(entry.date, firstDayOfNextMonth))
     .first();
   return !!record;
+};
+
+export const getIsPrevWeekHasSleepRecord = async (startOfWeek: Date) => {
+  const lastDayOfPrevWeek = subDays(startOfWeek, 1);
+  const record = await db.sleeps
+    .filter((entry) => isEqual(entry.date, lastDayOfPrevWeek))
+    .first();
+  return !!record;
+};
+
+export const getIsNextWeekHasSleepRecord = async (startOfWeek: Date) => {
+  const firstDayOfPrevWeek = addDays(startOfWeek, 7);
+  const record = await db.sleeps
+    .filter((entry) => isEqual(entry.date, firstDayOfPrevWeek))
+    .first();
+  return !!record;
+};
+
+export const getWeeklyData = async (startOfWeek: Date) => {
+  const records = await db.sleeps
+    .filter(
+      ({ date }) =>
+        isEqual(startOfWeek, date) ||
+        (isAfter(date, startOfWeek) && isBefore(date, addDays(startOfWeek, 7))),
+    )
+    .toArray();
+  return records;
 };

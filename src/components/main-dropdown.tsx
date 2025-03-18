@@ -15,6 +15,9 @@ export default function MainDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[10rem]">
         <DropdownMenuItem asChild>
+          <Link to="/weekly">周报</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/settings">设置</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
